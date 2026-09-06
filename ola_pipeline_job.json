@@ -1,0 +1,63 @@
+{
+  "name": "ola_lakehouse_pipeline",
+  "tags": {
+    "project": "ola-lakehouse-pyspark"
+  },
+  "job_clusters": [
+    {
+      "job_cluster_key": "main_cluster",
+      "new_cluster": {
+        "spark_version": "14.3.x-scala2.12",
+        "node_type_id": "Standard_DS3_v2",
+        "num_workers": 1,
+        "data_security_mode": "SINGLE_USER"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "data_ingestion",
+      "notebook_task": {
+        "notebook_path": "/Repos/ola-lakehouse-pyspark/notebooks/01_data_ingestion"
+      },
+      "job_cluster_key": "main_cluster"
+    },
+    {
+      "task_key": "data_quality_check",
+      "depends_on": [{ "task_key": "data_ingestion" }],
+      "notebook_task": {
+        "notebook_path": "/Repos/ola-lakehouse-pyspark/notebooks/02_data_quality_check"
+      },
+      "job_cluster_key": "main_cluster"
+    },
+    {
+      "task_key": "data_validation",
+      "depends_on": [{ "task_key": "data_quality_check" }],
+      "notebook_task": {
+        "notebook_path": "/Repos/ola-lakehouse-pyspark/notebooks/03_data_validation"
+      },
+      "job_cluster_key": "main_cluster"
+    },
+    {
+      "task_key": "data_transformation",
+      "depends_on": [{ "task_key": "data_validation" }],
+      "notebook_task": {
+        "notebook_path": "/Repos/ola-lakehouse-pyspark/notebooks/04_data_transformation"
+      },
+      "job_cluster_key": "main_cluster"
+    },
+    {
+      "task_key": "data_writing",
+      "depends_on": [{ "task_key": "data_transformation" }],
+      "notebook_task": {
+        "notebook_path": "/Repos/ola-lakehouse-pyspark/notebooks/05_data_writing"
+      },
+      "job_cluster_key": "main_cluster"
+    }
+  ],
+  "schedule": {
+    "quartz_cron_expression": "0 0 6 * * ?",
+    "timezone_id": "Asia/Kolkata",
+    "pause_status": "PAUSED"
+  }
+}
